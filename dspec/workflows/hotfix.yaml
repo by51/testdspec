@@ -24,6 +24,7 @@ steps:
     description: 描述问题
     skill: dspec-propose
     produces: [proposal.md, tasks.md]
+    auto_next: true
     next_hint: "下一步将直接修复问题，实施代码修改"
 
   - id: apply
@@ -31,6 +32,7 @@ steps:
     description: 修复问题
     skill: dspec-apply
     produces: []
+    auto_next: true
     next_hint: "下一步将提交修复代码到版本库"
 
   - id: archive
@@ -38,11 +40,12 @@ steps:
     description: 归档变更
     skill: dspec-archive
     produces: []
+    auto_next: true
     next_hint: "热修复完成，可开始新的变更"
 
   - id: commit
     gate: commit
     description: 提交修复
-    command: git add . && git commit -m "hotfix: ${change.name}"
+    command: "git add . && git commit -m 'hotfix: ${change}' && git push"
     produces: []
     next_hint: "下一步将归档变更，记录热修复完成状态"

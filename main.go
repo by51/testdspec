@@ -87,7 +87,7 @@ func main() {
 	})
 
 	server := &http.Server{
-		Addr:    ":9999",
+		Addr:    ":10001",
 		Handler: mux,
 	}
 
@@ -96,7 +96,7 @@ func main() {
 	defer stop()
 
 	go func() {
-		log.Println("服务启动，监听 :9999")
+		log.Println("服务启动，监听 :10001")
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("服务异常退出: %v", err)
 		}
