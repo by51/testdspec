@@ -1,0 +1,48 @@
+
+# 热修复工作流定义
+# 简化版流程：propose → apply → commit → archive（跳过设计阶段）
+
+name: hotfix
+description: 紧急热修复流程（跳过探索阶段）
+
+gates:
+  propose:
+    require: []
+  apply:
+    require: [propose.done]
+    block_if: [propose.has_open_issues]
+  commit:
+    require: [apply.done]
+    block_if: [apply.has_open_issues]
+  archive:
+    require: [commit.done]
+    block_if: []
+
+steps:
+  - id: propose
+    gate: propose
+    description: 描述问题
+    skill: dspec-propose
+    produces: [proposal.md, tasks.md]
+    next_hint: "下一步将直接修复问题，实施代码修改"
+
+  - id: apply
+    gate: apply
+    description: 修复问题
+    skill: dspec-apply
+    produces: []
+    next_hint: "下一步将提交修复代码到版本库"
+
+  - id: archive
+    gate: archive
+    description: 归档变更
+    skill: dspec-archive
+    produces: []
+    next_hint: "热修复完成，可开始新的变更"
+
+  - id: commit
+    gate: commit
+    description: 提交修复
+    command: git add . && git commit -m "hotfix: ${change.name}"
+    produces: []
+    next_hint: "下一步将归档变更，记录热修复完成状态"

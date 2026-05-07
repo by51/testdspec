@@ -1,0 +1,46 @@
+# 调研工作流示例
+# 适用于需要前期调研的场景，在 propose 之前增加 analyze 步骤
+
+name: research
+description: 含前期调研的开发流程
+
+gates:
+  analyze:
+    require: []
+  propose:
+    require: [analyze.done]
+    block_if: [analyze.has_open_issues]
+  apply:
+    require: [propose.done]
+    block_if: [propose.has_open_issues]
+  archive:
+    require: [apply.done]
+    block_if: [apply.has_open_issues]
+
+steps:
+  - id: analyze
+    gate: analyze
+    description: 调研分析现状
+    produces: [analysis.md]
+    next_hint: "下一步将规划变更，基于调研结果生成 proposal.md、design.md、tasks.md"
+
+  - id: propose
+    gate: propose
+    description: 规划变更
+    skill: dspec-propose
+    produces: [proposal.md, design.md, tasks.md]
+    next_hint: "下一步将按任务清单逐项实现代码"
+
+  - id: apply
+    gate: apply
+    description: 实现变更
+    skill: dspec-apply
+    produces: []
+    next_hint: "下一步将归档变更，记录完成状态"
+
+  - id: archive
+    gate: archive
+    description: 归档变更
+    skill: dspec-archive
+    produces: []
+    next_hint: "变更已完成，可开始新的变更"

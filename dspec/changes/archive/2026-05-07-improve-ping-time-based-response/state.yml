@@ -1,0 +1,16 @@
+change: improve-ping-time-based-response
+workflow: default
+created: 2026-05-07T16:32:58.399746+08:00
+progress:
+    apply:
+        status: done
+    archive:
+        status: in_progress
+    propose:
+        status: done
+issues: []
+current:
+    step: archive
+    blocked: false
+    blocking_issues: []
+    next_action: ""

@@ -1,0 +1,37 @@
+# 默认工作流定义
+# 标准规范驱动开发流程：propose → apply → archive
+
+name: default
+description: 标准规范驱动开发流程
+
+gates:
+  propose:
+    require: []
+  apply:
+    require: [propose.done]
+    block_if: [propose.has_open_issues]
+  archive:
+    require: [apply.done]
+    block_if: [apply.has_open_issues]
+
+steps:
+  - id: propose
+    gate: propose
+    description: 规划变更
+    skill: dspec-propose
+    produces: [proposal.md, design.md, tasks.md]
+    next_hint: "下一步将按任务清单逐项实现代码"
+
+  - id: apply
+    gate: apply
+    description: 实现变更
+    skill: dspec-apply
+    produces: []
+    next_hint: "下一步将归档变更，记录完成状态"
+
+  - id: archive
+    gate: archive
+    description: 归档变更
+    skill: dspec-archive
+    produces: []
+    next_hint: "变更已完成，可开始新的变更"

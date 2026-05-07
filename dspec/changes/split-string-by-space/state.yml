@@ -1,0 +1,16 @@
+change: split-string-by-space
+workflow: default
+created: 2026-05-07T15:05:53.097288+08:00
+progress:
+    apply:
+        status: done
+    archive:
+        status: done
+    propose:
+        status: done
+issues: []
+current:
+    step: propose
+    blocked: false
+    blocking_issues: []
+    next_action: ""

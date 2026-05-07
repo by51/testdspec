@@ -1,0 +1,16 @@
+change: add-variance-calculation-api
+workflow: default
+created: 2026-05-07T16:10:25.238204+08:00
+progress:
+    apply:
+        status: done
+    archive:
+        status: in_progress
+    propose:
+        status: done
+issues: []
+current:
+    step: archive
+    blocked: false
+    blocking_issues: []
+    next_action: ""

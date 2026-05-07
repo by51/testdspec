@@ -1,0 +1,16 @@
+change: add-random-number-api
+workflow: simple
+created: 2026-05-07T17:11:58.906408+08:00
+progress:
+    apply:
+        status: done
+    archive:
+        status: in_progress
+    propose:
+        status: done
+issues: []
+current:
+    step: archive
+    blocked: false
+    blocking_issues: []
+    next_action: ""
