@@ -276,3 +276,189 @@ func TestPingResponse(t *testing.T) {
 		}
 	}
 }
+
+func TestMd5Handler(t *testing.T) {
+	tests := []struct {
+		name       string
+		method     string
+		body       string
+		wantStatus int
+		wantHash   string
+	}{
+		{
+			name:       "正常输入：hello world",
+			method:     http.MethodPost,
+			body:       `{"input":"hello world"}`,
+			wantStatus: http.StatusOK,
+			wantHash:   "5eb63bbbe01eeed093cb22bb8f5acdc3",
+		},
+		{
+			name:       "空字符串",
+			method:     http.MethodPost,
+			body:       `{"input":""}`,
+			wantStatus: http.StatusOK,
+			wantHash:   "d41d8cd98f00b204e9800998ecf8427e",
+		},
+		{
+			name:       "缺少 input 字段",
+			method:     http.MethodPost,
+			body:       `{}`,
+			wantStatus: http.StatusOK,
+			wantHash:   "d41d8cd98f00b204e9800998ecf8427e", // 空字符串的 MD5
+		},
+		{
+			name:       "无效 JSON",
+			method:     http.MethodPost,
+			body:       `not-json`,
+			wantStatus: http.StatusBadRequest,
+		},
+		{
+			name:       "非 POST 方法：GET",
+			method:     http.MethodGet,
+			body:       ``,
+			wantStatus: http.StatusMethodNotAllowed,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(tc.method, "/md5", strings.NewReader(tc.body))
+			w := httptest.NewRecorder()
+			md5Handler(w, req)
+
+			if w.Code != tc.wantStatus {
+				t.Fatalf("期望状态码 %d，实际: %d", tc.wantStatus, w.Code)
+			}
+			if tc.wantStatus == http.StatusOK {
+				body, _ := io.ReadAll(w.Body)
+				if !strings.Contains(string(body), tc.wantHash) {
+					t.Fatalf("期望哈希值 %q，实际响应: %s", tc.wantHash, body)
+				}
+			}
+		})
+	}
+}
+
+func TestSha256Handler(t *testing.T) {
+	tests := []struct {
+		name       string
+		method     string
+		body       string
+		wantStatus int
+		wantHash   string
+	}{
+		{
+			name:       "正常输入：hello world",
+			method:     http.MethodPost,
+			body:       `{"input":"hello world"}`,
+			wantStatus: http.StatusOK,
+			wantHash:   "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+		},
+		{
+			name:       "空字符串",
+			method:     http.MethodPost,
+			body:       `{"input":""}`,
+			wantStatus: http.StatusOK,
+			wantHash:   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+		},
+		{
+			name:       "缺少 input 字段",
+			method:     http.MethodPost,
+			body:       `{}`,
+			wantStatus: http.StatusOK,
+			wantHash:   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", // 空字符串的 SHA256
+		},
+		{
+			name:       "无效 JSON",
+			method:     http.MethodPost,
+			body:       `not-json`,
+			wantStatus: http.StatusBadRequest,
+		},
+		{
+			name:       "非 POST 方法：GET",
+			method:     http.MethodGet,
+			body:       ``,
+			wantStatus: http.StatusMethodNotAllowed,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(tc.method, "/sha256", strings.NewReader(tc.body))
+			w := httptest.NewRecorder()
+			sha256Handler(w, req)
+
+			if w.Code != tc.wantStatus {
+				t.Fatalf("期望状态码 %d，实际: %d", tc.wantStatus, w.Code)
+			}
+			if tc.wantStatus == http.StatusOK {
+				body, _ := io.ReadAll(w.Body)
+				if !strings.Contains(string(body), tc.wantHash) {
+					t.Fatalf("期望哈希值 %q，实际响应: %s", tc.wantHash, body)
+				}
+			}
+		})
+	}
+}
+
+func TestSha1Handler(t *testing.T) {
+	tests := []struct {
+		name       string
+		method     string
+		body       string
+		wantStatus int
+		wantHash   string
+	}{
+		{
+			name:       "正常输入：hello world",
+			method:     http.MethodPost,
+			body:       `{"input":"hello world"}`,
+			wantStatus: http.StatusOK,
+			wantHash:   "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed",
+		},
+		{
+			name:       "空字符串",
+			method:     http.MethodPost,
+			body:       `{"input":""}`,
+			wantStatus: http.StatusOK,
+			wantHash:   "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+		},
+		{
+			name:       "缺少 input 字段",
+			method:     http.MethodPost,
+			body:       `{}`,
+			wantStatus: http.StatusOK,
+			wantHash:   "da39a3ee5e6b4b0d3255bfef95601890afd80709", // 空字符串的 SHA1
+		},
+		{
+			name:       "无效 JSON",
+			method:     http.MethodPost,
+			body:       `not-json`,
+			wantStatus: http.StatusBadRequest,
+		},
+		{
+			name:       "非 POST 方法：GET",
+			method:     http.MethodGet,
+			body:       ``,
+			wantStatus: http.StatusMethodNotAllowed,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(tc.method, "/sha1", strings.NewReader(tc.body))
+			w := httptest.NewRecorder()
+			sha1Handler(w, req)
+
+			if w.Code != tc.wantStatus {
+				t.Fatalf("期望状态码 %d，实际: %d", tc.wantStatus, w.Code)
+			}
+			if tc.wantStatus == http.StatusOK {
+				body, _ := io.ReadAll(w.Body)
+				if !strings.Contains(string(body), tc.wantHash) {
+					t.Fatalf("期望哈希值 %q，实际响应: %s", tc.wantHash, body)
+				}
+			}
+		})
+	}
+}

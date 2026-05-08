@@ -1,0 +1,14 @@
+change: md5-encryption-endpoint
+workflow: simple
+progress:
+    apply:
+        status: done
+    archive:
+        status: done
+    propose:
+        status: done
+issues: []
+current:
+    step: propose
+    blocked: false
+    blocking_issues: []

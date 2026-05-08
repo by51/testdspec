@@ -1,0 +1,14 @@
+change: add-sha1-endpoint
+workflow: simple
+progress:
+    apply:
+        status: done
+    archive:
+        status: done
+    propose:
+        status: done
+issues: []
+current:
+    step: propose
+    blocked: false
+    blocking_issues: []

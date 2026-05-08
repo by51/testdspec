@@ -11,12 +11,12 @@ gates:
   apply:
     require: [propose.done]
     block_if: [propose.has_open_issues]
-  commit:
+  archive:
     require: [apply.done]
     block_if: [apply.has_open_issues]
-  archive:
-    require: [commit.done]
-    block_if: []
+  commit:
+    require: [archive.done]
+    block_if: [archive.has_open_issues]
 
 steps:
   - id: propose

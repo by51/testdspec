@@ -1,0 +1,16 @@
+change: add-timezone-endpoint
+workflow: default
+created: 2026-05-07T20:18:52.805278+08:00
+progress:
+    apply:
+        status: done
+    archive:
+        status: pending
+    propose:
+        status: done
+issues: []
+current:
+    step: archive
+    blocked: false
+    blocking_issues: []
+    next_action: ""
