@@ -6,11 +6,11 @@ progress:
     archive:
         status: done
     commit:
-        status: pending
+        status: done
     propose:
         status: done
 issues: []
 current:
-    step: commit
+    step: propose
     blocked: false
     blocking_issues: []
