@@ -1,0 +1,16 @@
+change: add-urldecode-api
+workflow: hotfix
+progress:
+    apply:
+        status: done
+    archive:
+        status: done
+    commit:
+        status: pending
+    propose:
+        status: done
+issues: []
+current:
+    step: commit
+    blocked: false
+    blocking_issues: []

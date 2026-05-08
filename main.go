@@ -11,6 +11,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os/signal"
 	"strings"
 	"syscall"
@@ -112,6 +113,16 @@ type Sha1Response struct {
 	Hash string `json:"hash"` // SHA1 哈希值（40位小写十六进制）
 }
 
+// UrlDecodeRequest URL 解码接口请求结构
+type UrlDecodeRequest struct {
+	Input string `json:"input"` // 待解码的字符串
+}
+
+// UrlDecodeResponse URL 解码接口响应结构
+type UrlDecodeResponse struct {
+	Decoded string `json:"decoded"` // 解码后的字符串
+}
+
 func timestampHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -209,6 +220,29 @@ func sha1Handler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
+func urldecodeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req UrlDecodeRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	// URL 解码
+	decoded, err := url.QueryUnescape(req.Input)
+	if err != nil {
+		http.Error(w, "invalid URL encoding", http.StatusBadRequest)
+		return
+	}
+	resp := UrlDecodeResponse{
+		Decoded: decoded,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -234,6 +268,7 @@ func main() {
 	mux.HandleFunc("/md5", md5Handler)
 	mux.HandleFunc("/sha256", sha256Handler)
 	mux.HandleFunc("/sha1", sha1Handler)
+	mux.HandleFunc("/urldecode", urldecodeHandler)
 
 	server := &http.Server{
 		Addr:    ":10001",

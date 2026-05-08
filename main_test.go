@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -457,6 +458,108 @@ func TestSha1Handler(t *testing.T) {
 				body, _ := io.ReadAll(w.Body)
 				if !strings.Contains(string(body), tc.wantHash) {
 					t.Fatalf("期望哈希值 %q，实际响应: %s", tc.wantHash, body)
+				}
+			}
+		})
+	}
+}
+
+func TestUrlDecodeHandler(t *testing.T) {
+	tests := []struct {
+		name         string
+		method       string
+		body         string
+		wantStatus   int
+		wantDecoded  string
+	}{
+		{
+			name:         "正常解码：空格",
+			method:       http.MethodPost,
+			body:         `{"input":"hello%20world"}`,
+			wantStatus:   http.StatusOK,
+			wantDecoded:  "hello world",
+		},
+		{
+			name:         "中文字符解码",
+			method:       http.MethodPost,
+			body:         `{"input":"%E4%BD%A0%E5%A5%BD"}`,
+			wantStatus:   http.StatusOK,
+			wantDecoded:  "你好",
+		},
+		{
+			name:         "特殊字符解码",
+			method:       http.MethodPost,
+			body:         `{"input":"a%3Db%26c%3Dd"}`,
+			wantStatus:   http.StatusOK,
+			wantDecoded:  "a=b&c=d",
+		},
+		{
+			name:         "未编码字符串",
+			method:       http.MethodPost,
+			body:         `{"input":"hello world"}`,
+			wantStatus:   http.StatusOK,
+			wantDecoded:  "hello world",
+		},
+		{
+			name:         "空字符串",
+			method:       http.MethodPost,
+			body:         `{"input":""}`,
+			wantStatus:   http.StatusOK,
+			wantDecoded:  "",
+		},
+		{
+			name:         "缺少 input 字段",
+			method:       http.MethodPost,
+			body:         `{}`,
+			wantStatus:   http.StatusOK,
+			wantDecoded:  "", // JSON 解码时字段为零值
+		},
+		{
+			name:         "无效 JSON",
+			method:       http.MethodPost,
+			body:         `not-json`,
+			wantStatus:   http.StatusBadRequest,
+		},
+		{
+			name:         "无效 URL 编码：非法十六进制",
+			method:       http.MethodPost,
+			body:         `{"input":"%ZZ"}`,
+			wantStatus:   http.StatusBadRequest,
+		},
+		{
+			name:         "不完整的百分号编码",
+			method:       http.MethodPost,
+			body:         `{"input":"hello%2"}`,
+			wantStatus:   http.StatusBadRequest,
+		},
+		{
+			name:         "非 POST 方法：GET",
+			method:       http.MethodGet,
+			body:         ``,
+			wantStatus:   http.StatusMethodNotAllowed,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(tc.method, "/urldecode", strings.NewReader(tc.body))
+			w := httptest.NewRecorder()
+			urldecodeHandler(w, req)
+
+			if w.Code != tc.wantStatus {
+				t.Fatalf("期望状态码 %d，实际: %d", tc.wantStatus, w.Code)
+			}
+			if tc.wantStatus == http.StatusOK {
+				body, _ := io.ReadAll(w.Body)
+				// 解析 JSON 响应
+				var resp struct {
+					Decoded string `json:"decoded"`
+				}
+				if err := json.Unmarshal(body, &resp); err != nil {
+					t.Fatalf("解析 JSON 响应失败: %v, 响应体: %s", err, body)
+				}
+				if resp.Decoded != tc.wantDecoded {
+					t.Fatalf("期望解码结果 %q，实际: %q", tc.wantDecoded, resp.Decoded)
 				}
 			}
 		})
